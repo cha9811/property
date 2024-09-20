@@ -25,7 +25,9 @@ public class Member {
     private String member_phone_number;
     private String member_address;
     private String member_account;
-    private String member_role;
+
+    @Enumerated(EnumType.STRING) // enum 값을 문자열로 DB에 저장
+    private MemberRole member_role;
     private Date created_at;
 
 
@@ -44,4 +46,6 @@ public class Member {
                 ", created_at=" + created_at +
                 '}';
     }
+
+
 }

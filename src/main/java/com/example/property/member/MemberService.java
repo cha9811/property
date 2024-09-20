@@ -1,6 +1,7 @@
 package com.example.property.member;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +14,13 @@ public class MemberService{
     private MemberRepo memberRepo;
 
 
+//    @Autowired
+//    private PasswordEncoder passwordEncoder;
+
+//    @Autowired
+//    public MemberService(PasswordEncoder passwordEncoder) {
+//        this.passwordEncoder = passwordEncoder;
+//    }
 
 
     public List<Member> getAllUsers() {
@@ -26,6 +34,11 @@ public class MemberService{
         return member;
     }
 
+    public void signUp(Member member){
+//        String encodePassWord = passwordEncoder.encode(member.getMember_password());
+//        member.setMember_password(encodePassWord);
+        memberRepo.save(member);
+    }
 
 
 

@@ -1,0 +1,39 @@
+#mainSpace {
+    top: 120px;
+    left: 300px;
+    position: relative; /*하위요소 디자인 종속받음*/
+    width: 1000px;
+}
+
+#popUpSpace {
+    z-index: 1000;
+    background-color: blue;
+    position: absolute; /* 팝업을 다른 요소와 독립적으로 떠 있게 설정 */
+
+}
+
+#bannerSpace {
+    top: 100px;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    height: 200px;
+}
+
+.banner-content {
+    position: absolute;
+    white-space: nowrap;
+
+}
+
+.banner-content img {
+    width: 300px; /* 각 이미지의 너비 */
+    height: 250px;
+    margin-right: 20px; /* 이미지 사이 간격 */
+}
+
+/*.popUp{*/
+/*    z-index: 1000;*/
+/*    position: relative; !* 또는 absolute/fixed *!*/
+
+/*}*/

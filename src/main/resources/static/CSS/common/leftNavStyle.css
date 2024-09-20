@@ -1,0 +1,49 @@
+/* LeftNav 스타일 */
+#left-nav {
+    width: 300px; /* 너비 설정 */
+    height: 400px; /* 높이 설정 */
+    position: absolute; /* 절대 위치로 설정 */
+    top: 300px; /* 화면 상단에서 500px 떨어짐 */
+    left: 0; /* 화면 왼쪽에 고정 */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#left-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#left-nav ul li {
+    margin-bottom: 20px;
+}
+
+#left-nav ul li a {
+    text-decoration: none;
+    color: white;
+    padding: 10px 15px;
+    display: block;
+    background-color: #34495e;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#left-nav ul li a:hover {
+    background-color: #1abc9c;
+}
+
+#left-nav form button {
+    width: 100%;
+    padding: 10px 15px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#left-nav form button:hover {
+    background-color: #c0392b;
+}

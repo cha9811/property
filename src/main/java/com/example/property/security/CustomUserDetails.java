@@ -1,6 +1,8 @@
 package com.example.property.security;
 
 import com.example.property.member.Member;
+import com.example.property.member.MemberRole;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,35 +13,50 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class CustomUserDetails implements UserDetails {
 
     private Member member;
-    private String username;
-    private String password;
-    private Collection<? extends GrantedAuthority> authorities; //websocket의 userAut로 user_id를 추출하기 위해 필요함
-    private int userId; // 사용자 고유 ID 또는 인덱스
-    private String member_role;
+
 
 
     public CustomUserDetails(Member member) {
         this.member = member;
     }
 
+    @Override
+    public String getUsername() {
+        return member.getMember_username();  // 로그인 시 사용될 username
+    }
+
+    @Override
+    public String getPassword() {
+        return member.getMember_password();  // 암호화된 비밀번호
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
 
+
     @Override
-    public String getPassword() {
-        return "";
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
     }
 
     @Override
-    public String getUsername() {
-        return "";
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
     }
 }

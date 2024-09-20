@@ -1,73 +1,158 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <head>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
-<!--    <title>Title</title>-->
+    <!--    <title>Title</title>-->
     <title>Kakao 지도 시작하기</title>
 
 </head>
+<link th:href="@{CSS/home/homeStyle.css}" rel="stylesheet"/>
 <body>
-<section id="roadContaner">
-
-
-
-
-<div id="map" style="width:100%;height:350px;"></div>
-<p style="margin-top:-12px">
-    사용한 데이터를 보시려면
-    <em class="link">
-        <a href="/download/web/data/chicken.json" target="_blank">여기를 클릭하세요!</a>
-    </em>
-</p>
-
-<div id="map" style="width:500px;height:400px;"></div>
+<header th:replace="~{fragments/topNavBar :: navFragment}"></header>
+<header th:replace="~{fragments/leftNavBar :: leftNavBar}"></header>
+<section id="popUpSpace">
+    <div class="popUp">팝업입니당~</div>
+    <input type="checkbox">오늘 하루동안 보지않기
+    <button class="popUpCloseBtn">닫기</button>
+    <div>
+    <div class="popUp">팝업입니당~</div>
+    <input type="checkbox">오늘 하루동안 보지않기
+    <button class="popUpCloseBtn">닫기</button>
+    </div>
 </section>
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=27f43084dcac6031b67dc78b2021ffdb"></script>
-<script>
-    var map = new kakao.maps.Map(document.getElementById('map'), { // 지도를 표시할 div
-        center : new kakao.maps.LatLng(36.2683, 127.6358), // 지도의 중심좌표
-        level : 14 // 지도의 확대 레벨
-    });
 
-    // 마커 클러스터러를 생성합니다
-    // 마커 클러스터러를 생성할 때 disableClickZoom 값을 true로 지정하지 않은 경우
-    // 클러스터 마커를 클릭했을 때 클러스터 객체가 포함하는 마커들이 모두 잘 보이도록 지도의 레벨과 영역을 변경합니다
-    // 이 예제에서는 disableClickZoom 값을 true로 설정하여 기본 클릭 동작을 막고
-    // 클러스터 마커를 클릭했을 때 클릭된 클러스터 마커의 위치를 기준으로 지도를 1레벨씩 확대합니다
-    var clusterer = new kakao.maps.MarkerClusterer({
-        map: map, // 마커들을 클러스터로 관리하고 표시할 지도 객체
-        averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
-        minLevel: 10, // 클러스터 할 최소 지도 레벨
-        disableClickZoom: true // 클러스터 마커를 클릭했을 때 지도가 확대되지 않도록 설정한다
-    });
+<div id="bannerSpace">
+    <div class="banner-content" id="bannerContent">
+        <img th:src="@{/IMAGE/1_banner.jpg}" alt="Banner 1">
+        <img th:src="@{/IMAGE/2_banner.jpg}" alt="Banner 2">
+        <img th:src="@{/IMAGE/3_banner.jpg}" alt="Banner 3">
+    </div>
+</div>
 
-    // 데이터를 가져오기 위해 jQuery를 사용합니다
-    // 데이터를 가져와 마커를 생성하고 클러스터러 객체에 넘겨줍니다
-    $.get("/download/web/data/chicken.json", function(data) {
-        // 데이터에서 좌표 값을 가지고 마커를 표시합니다
-        // 마커 클러스터러로 관리할 마커 객체는 생성할 때 지도 객체를 설정하지 않습니다
-        var markers = $(data.positions).map(function(i, position) {
-            return new kakao.maps.Marker({
-                position : new kakao.maps.LatLng(position.lat, position.lng)
+<div id="mainSpace">
+    <section id="mapSpace">
+        <div id="map" style="width:500px;height:400px;"></div>
+        <script type="text/javascript"
+                src="//dapi.kakao.com/v2/maps/sdk.js?appkey=27f43084dcac6031b67dc78b2021ffdb"></script>
+        <script>
+            // if (navigator.geolocation) {
+            const getLoaction = () => {
+                const options = {
+                    enableHighAccuracy: true,
+                    maximumAge: 3600000,
+                    timeout: 30000,
+                };
+
+                navigator.geolocation.getCurrentPosition(
+                    getLocationSuc,
+                    getLocationErr,
+                    options
+                );
+            };
+            const getLocationSuc = (position) => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                getWeatherInfo(latitude, longitude);
+            };
+
+            // 현 위치 가져오기 실패 : 에러 메세지 alert 띄우기
+            const getLocationErr = (error) => {
+                alert(`에러가 발생하여 위치 정보를 찾을 수 없습니다.\n${error.message}`);
+            };
+            // } else {
+            //     console.error("Geolocation is not supported by this browser.");
+            // }
+
+            var map = new kakao.maps.Map(document.getElementById('map'), { // 지도를 표시할 div
+                center: new kakao.maps.LatLng(36.2683, 127.6358), // 지도의 중심좌표
+                level: 14 // 지도의 확대 레벨
             });
-        });
+            var clusterer = new kakao.maps.MarkerClusterer({
+                map: map, // 마커들을 클러스터로 관리하고 표시할 지도 객체
+                averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
+                minLevel: 10, // 클러스터 할 최소 지도 레벨
+                disableClickZoom: true // 클러스터 마커를 클릭했을 때 지도가 확대되지 않도록 설정한다
+            });
+            $.get("/download/web/data/chicken.json", function (data) {
+                var markers = $(data.positions).map(function (i, position) {
+                    return new kakao.maps.Marker({
+                        position: new kakao.maps.LatLng(position.lat, position.lng)
+                    });
+                });
 
-        // 클러스터러에 마커들을 추가합니다
-        clusterer.addMarkers(markers);
-    });
+                clusterer.addMarkers(markers);
+            });
+            kakao.maps.event.addListener(clusterer, 'clusterclick', function (cluster) {
+                var level = map.getLevel() - 1;
+                map.setLevel(level, {anchor: cluster.getCenter()});
+            });
 
-    // 마커 클러스터러에 클릭이벤트를 등록합니다
-    // 마커 클러스터러를 생성할 때 disableClickZoom을 true로 설정하지 않은 경우
-    // 이벤트 헨들러로 cluster 객체가 넘어오지 않을 수도 있습니다
-    kakao.maps.event.addListener(clusterer, 'clusterclick', function(cluster) {
 
-        // 현재 지도 레벨에서 1레벨 확대한 레벨
-        var level = map.getLevel()-1;
+        </script>
 
-        // 지도를 클릭된 클러스터의 마커의 위치를 기준으로 확대합니다
-        map.setLevel(level, {anchor: cluster.getCenter()});
+    </section>
+    <section id="noticeSpace">
+        <div th:if="${error}">
+            <p th:text="${error}">에러가 발생했습니다.</p>
+        </div>
+
+        <!-- 공지사항 목록 표시 -->
+        <div th:if="${notices}">
+            <ul>
+                <li th:each="notice : ${notices}">
+                    <span th:text="${notice.noticeTitle}">공지사항 제목</span>:
+                    <span th:text="${notice.noticeContent}">공지사항 내용</span>
+                    <div th:if="${notice.noticeModifiedTime == null}">
+                        <!-- noticeModifiedTime이 null인 경우: noticeCreateTime을 표시 -->
+                        <span th:text="${#dates.format(notice.noticeCreateTime, 'yyyy-MM-dd')}">공지사항 생성일</span>
+                    </div>
+                    <div th:if="${notice.noticeModifiedTime != null}">
+                        <!-- noticeModifiedTime이 null이 아닌 경우: noticeModifiedTime을 표시 -->
+                        <span th:text="${#dates.format(notice.noticeModifiedTime, 'yyyy-MM-dd')}">공지사항 수정일</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+</div>
+<script>
+function castingDay(){
+    var docu
+}
+
+    function popUpClose() {
+        this.parentElement.style.display = 'none';  // 부모 요소를 숨깁니다.
+    }
+
+    var closeButtons = document.querySelectorAll('.popUpCloseBtn');
+    closeButtons.forEach(function (button) {
+        console.log("실행됨");
+        button.addEventListener('click', popUpClose);
     });
 </script>
+
+<script>
+    var banner = document.getElementById("bannerContent");
+    var bannerWrapper = banner.parentElement;
+    var bannerWidth = banner.offsetWidth;
+    var wrapperWidth = bannerWrapper.offsetWidth;
+    var position = wrapperWidth;
+
+    function moveBanner() {
+        position--;
+        if (position < -bannerWidth) {
+            position = wrapperWidth;
+        }
+        banner.style.left = position + 'px';
+        requestAnimationFrame(moveBanner); // 매 프레임마다 호출하여 부드러운 애니메이션
+    }
+
+    moveBanner(); // 애니메이션 시작
+</script>
+
 </body>
 </html>

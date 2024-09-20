@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Left Sidebar Example</title>
+
+</head>
+
+<body>
+<!--<nav id="topNav" th:fragment="navFragment">-->
+
+<!-- 왼쪽 네비게이션 바 -->
+<nav id="left-nav" th:fragment="leftNavBar">
+    <link th:href="@{/CSS/common/leftNavStyle.css}" rel="stylesheet"/>
+
+    <ul>
+        <li><a href="/menu1" th:href="@{/menu1}">Dashboard</a></li>
+        <li><a href="/menu2" th:href="@{/menu2}">Profile</a></li>
+        <li><a href="/menu3" th:href="@{/menu3}">Settings</a></li>
+        <li><a href="/menu4" th:href="@{/menu4}">Help</a></li>
+    </ul>
+
+    <!-- 로그아웃 버튼 -->
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" sec:authorize="isAuthenticated()">로그아웃</button>
+    </form>
+</nav>
+
+<!-- 메인 콘텐츠 영역 -->
+<div class="content">
+    <h1>Welcome to the Main Content</h1>
+    <p>This is the main content area where you can add your content.</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+</head>
+
+
+<body>
+
+
+<nav id="topNav" th:fragment="navFragment" xmlns:sec="http://www.w3.org/1999/xhtml">
+        <link th:href="@{CSS/common/topNavStyle.css}" rel="stylesheet"/>
+<!--    <img th:src="@{CSS/IMAGE/logo_icon.png}">-->
+    <a th:href="@{/home}">
+        <img th:src="@{/IMAGE/logo_icon.png}" alt="My Logo" style="cursor: pointer; height: 100px; width: 70px;">
+    </a>
+    <ul>
+        <li class="menu-item">
+            <a href="#">물건검색</a>
+            <ul class="sub-menu">
+                <li><a href="#">종합검색</a></li>
+                <li><a href="#">지도검색</a></li>
+                <li><a href="#">심층조사</a></li>
+            </ul>
+        </li>
+        <li class="menu-item">
+            <a href="#">결과/통계</a>
+            <ul class="sub-menu">
+                <li><a href="#">경매 통계</a></li>
+                <li><a href="#">예정 통계</a></li>
+            </ul>
+        </li>
+        <li class="menu-item"><a href="#">예정물건</a></li>
+        <li class="menu-item"><a href="#">내정보</a></li>
+        <li class="menu-item"><a href="#">커뮤니티</a></li>
+        <li class="menu-item"><a href="#">고객문의</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nav-link" sec:authorize="isAuthenticated()">로그아웃</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+</body>
+</html>
