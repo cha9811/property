@@ -7,7 +7,11 @@
     <meta charset="UTF-8">
     <!--    <title>Title</title>-->
     <title>Kakao 지도 시작하기</title>
-
+    <style>
+        #container {overflow:hidden;position:relative;}
+        #container.view_map #mapWrapper {z-index: 10;}
+        #container.view_roadview #mapWrapper {z-index: 0;}
+    </style>
 </head>
 <link th:href="@{CSS/home/homeStyle.css}" rel="stylesheet"/>
 <body>
@@ -34,72 +38,176 @@
 
 <div id="mainSpace">
     <section id="mapSpace">
-        <div id="map" style="width:500px;height:400px;"></div>
+
+        <div id="container" class="view_map">
+            <div id="mapWrapper" style="width:48%; height:400px; float:left; margin-right:2%; border: 2px solid black;">
+                <div id="map" style="width:100%; height:100%;"></div>
+            </div>
+            <div id="rvWrapper" style="width:48%; height:400px; float:left; border: 2px solid black;">
+                <div id="roadview" style="width:100%; height:100%;"></div>
+            </div>
+        </div>
+
         <script type="text/javascript"
-                src="//dapi.kakao.com/v2/maps/sdk.js?appkey=27f43084dcac6031b67dc78b2021ffdb"></script>
+                src="//dapi.kakao.com/v2/maps/sdk.js?appkey=27f43084dcac6031b67dc78b2021ffdb&libraries=clusterer"></script>
         <script>
-            // if (navigator.geolocation) {
-            const getLoaction = () => {
-                const options = {
-                    enableHighAccuracy: true,
-                    maximumAge: 3600000,
-                    timeout: 30000,
-                };
+            var container = document.getElementById('container'), // 지도와 로드뷰를 감싸고 있는 div 입니다
+                rvContainer = document.getElementById('roadview'), // 로드뷰를 표시할 div 입니다
+                mapContainer = document.getElementById('map'); // 지도를 표시할 div 입니다
 
-                navigator.geolocation.getCurrentPosition(
-                    getLocationSuc,
-                    getLocationErr,
-                    options
-                );
-            };
-            const getLocationSuc = (position) => {
-                const latitude = position.coords.latitude;
-                const longitude = position.coords.longitude;
-
-                getWeatherInfo(latitude, longitude);
+            mapOption = {
+                center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+                level: 10 // 지도의 확대 레벨
             };
 
-            // 현 위치 가져오기 실패 : 에러 메세지 alert 띄우기
-            const getLocationErr = (error) => {
-                alert(`에러가 발생하여 위치 정보를 찾을 수 없습니다.\n${error.message}`);
-            };
-            // } else {
-            //     console.error("Geolocation is not supported by this browser.");
-            // }
+            var placePosition = new kakao.maps.LatLng(37.394225, 127.110378);
+            var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+            var marker = null;
 
-            var map = new kakao.maps.Map(document.getElementById('map'), { // 지도를 표시할 div
-                center: new kakao.maps.LatLng(36.2683, 127.6358), // 지도의 중심좌표
-                level: 14 // 지도의 확대 레벨
+            var roadview = new kakao.maps.Roadview(rvContainer);
+
+            roadview.setPanoId(1023434522, placePosition);
+            roadview.setViewpoint({
+                pan: 321,
+                tilt: 0,
+                zoom: 0
             });
-            var clusterer = new kakao.maps.MarkerClusterer({
-                map: map, // 마커들을 클러스터로 관리하고 표시할 지도 객체
-                averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
-                minLevel: 10, // 클러스터 할 최소 지도 레벨
-                disableClickZoom: true // 클러스터 마커를 클릭했을 때 지도가 확대되지 않도록 설정한다
-            });
-            $.get("/download/web/data/chicken.json", function (data) {
-                var markers = $(data.positions).map(function (i, position) {
-                    return new kakao.maps.Marker({
-                        position: new kakao.maps.LatLng(position.lat, position.lng)
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var lat = position.coords.latitude,
+                            lon = position.coords.longitude; 1
+
+                        var locPosition = new kakao.maps.LatLng(lat, lon),
+                            message = '<div style="padding:5px;">여기에 계신가요?!</div>';
+                        displayMarker(locPosition, message);
                     });
+
+                } else {
+
+                    var locPosition = new kakao.maps.LatLng(37.394225, 127.110378),
+                        message = 'geolocation을 사용할수 없어요..'
+
+                    displayMarker(locPosition, message);
+                }
+
+
+            function displayMarker(locPosition, message) {
+
+                if (marker) {
+                    marker.setPosition(locPosition);
+                } else {
+                    marker = new kakao.maps.Marker({
+                        map: map,
+                        position: locPosition
+                    });
+                }
+
+                var iwContent = message,
+                    iwRemoveable = true;
+
+                var infowindow = new kakao.maps.InfoWindow({
+                    content : iwContent,
+                    removable : iwRemoveable
                 });
 
-                clusterer.addMarkers(markers);
-            });
-            kakao.maps.event.addListener(clusterer, 'clusterclick', function (cluster) {
-                var level = map.getLevel() - 1;
-                map.setLevel(level, {anchor: cluster.getCenter()});
-            });
+                infowindow.open(map, marker);
+                map.setCenter(locPosition);
+            }
 
+
+            function mySpaceResearch() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var lat = position.coords.latitude,
+                            lon = position.coords.longitude;
+
+                        var locPosition = new kakao.maps.LatLng(lat, lon),
+                            message = '<div style="padding:5px;">현재 위치입니다!</div>';
+
+                        // 마커와 지도 중심을 현재 위치로 이동합니다
+                        marker.setPosition(locPosition);
+                        map.setCenter(locPosition);
+
+                        // 로드뷰 업데이트
+                        roadviewClient.getNearestPanoId(locPosition, 50, function(panoId) {
+                            if (panoId) {
+                                roadview.setPanoId(panoId, locPosition);
+                            } else {
+                                alert('현재 위치에 로드뷰가 없습니다.');
+                            }
+                        });
+                    }, function(error) {
+                        console.error('위치 정보를 가져오는데 실패했습니다.', error);
+                    });
+                } else {
+                    alert('Geolocation을 사용할 수 없습니다.');
+                }
+            }
+
+            kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+                // 클릭한 위치의 좌표를 가져옵니다
+                var latlng = mouseEvent.latLng;
+
+                // 마커의 위치를 클릭한 위치로 옮깁니다
+                if (marker) {
+                    marker.setPosition(latlng);
+                } else {
+                    // 마커가 없으면 생성합니다
+                    marker = new kakao.maps.Marker({
+                        map: map,
+                        position: latlng
+                    });
+                }
+
+                // 인포윈도우 내용 업데이트
+                var message = '<div style="padding:5px;">클릭한 위치입니다!</div>';
+
+                // 인포윈도우가 이미 생성되어 있으면 내용만 변경하고, 없으면 생성합니다
+                if (infowindow) {
+                    infowindow.setContent(message);
+                } else {
+                    infowindow = new kakao.maps.InfoWindow({
+                        content: message,
+                        removable: true
+                    });
+                }
+                infowindow.open(map, marker);
+
+                // 지도 중심을 클릭한 위치로 이동합니다
+                map.setCenter(latlng);
+
+                // 로드뷰 위치 업데이트
+                moveRoadview(latlng);
+            });
+            var roadviewClient = new kakao.maps.RoadviewClient();
+
+
+            function moveRoadview(position) {
+                roadviewClient.getNearestPanoId(position, 50, function(panoId) {
+                    if (panoId) {
+                        roadview.setPanoId(panoId, position);
+                    } else {
+                        alert('해당 위치에 로드뷰가 없습니다.');
+                    }
+                });
+            }
+
+                function moveMaker(){
+
+            }
 
         </script>
 
     </section>
+    <button onclick="mySpaceResearch()">
+
+        asdasd
+    </button>
     <section id="noticeSpace">
         <div th:if="${error}">
             <p th:text="${error}">에러가 발생했습니다.</p>
         </div>
-
         <!-- 공지사항 목록 표시 -->
         <div th:if="${notices}">
             <ul>
@@ -118,11 +226,14 @@
             </ul>
         </div>
     </section>
+    <section id="todayHitSpace">
+        <section>
+            <div>오늘의 조회수</div>
+        </section>
+    </section>
 </div>
 <script>
-function castingDay(){
-    var docu
-}
+
 
     function popUpClose() {
         this.parentElement.style.display = 'none';  // 부모 요소를 숨깁니다.
@@ -130,7 +241,6 @@ function castingDay(){
 
     var closeButtons = document.querySelectorAll('.popUpCloseBtn');
     closeButtons.forEach(function (button) {
-        console.log("실행됨");
         button.addEventListener('click', popUpClose);
     });
 </script>
